@@ -1,60 +1,51 @@
-@php
-    use App\Enums\Models\User\Role;
-@endphp
 <div>
+    <select name="" id="" wire:model.live="csf_target_model_name.cur">
+        @foreach ($csf_models_obj as $model_name => $value)
+            <option value="{{ $model_name }}">{{ $value['base']['label'] }}</option>
+        @endforeach
+    </select>
+    <br>
 
-    <form wire:submit="search">
-        <select wire:model.change="query.model">
-            <option value="user">ユーザーの検索</option>
-            @foreach (Role::formOrder() as $role)
-                <option value="{{ $role->en_US_lower() }}">{{ $role->ja_JP() }}の検索</option>
-            @endforeach
-        </select>
-
-        @if ($query['model'] !== '')
-            @php
-                $query_model_info = $models_info[$query['model']];
-            @endphp
-
-            <select name="" id="" wire:model.live="query.column">
-                <option value="">すべて</option>
-                @foreach ($query_model_info as $table_name => $value)
-                    <option value="{{ $table_name }}">{{ $value['label'] }}</option>
-                @endforeach
-            </select>
-
-            @if ($query['column'] !== '')
-                @php
-                    $childs = $query_model_info[$query['column']]['childs']
-                @endphp
-
-                <select name="" id="" wire:model.live="query.child_num">
-                    @foreach ($childs as $child)
-                        <option value="{{ $loop->index }}">{{ $child['label'] }}</option>
-                    @endforeach
-                </select>
-
-                @if ($childs[$query['child_num']]['html_tag'] === 'input')
-                    <input type="text" wire:model.live="query.value">                    
+    @foreach ($csf_search_forms as $form_tree)
+        @foreach ($form_tree as $row)
+            @foreach ($row as $option)
+                {{-- <{{ $loop->parent->parent->index }}.{{ $loop->parent->index }}.{{ $loop->index }}> --}}
+                @if ($option['html_tag'] === 'select')
+                    <select name="" id="" wire:model.live="csf_search_forms.{{ $loop->parent->parent->index }}.{{ $loop->parent->index }}.{{ $loop->index }}.obj_idx" wire:key="csf_search_forms.{{ $loop->parent->parent->index }}.{{ $loop->parent->index }}.{{ $loop->index }}.obj_idx">
+                        @foreach ($option['objs'] as $item)
+                            <option value="{{ $loop->index }}">{{ $item['label'] }}</option>
+                        @endforeach
+                    </select>
+                @elseif ($option['html_tag'] === 'input')
+                    <input type="text" wire:model.live="csf_search_forms.{{ $loop->parent->parent->index }}.{{ $loop->parent->index }}.{{ $loop->index }}.objs.{{ $csf_search_forms[$loop->parent->parent->index][$loop->parent->index][$loop->index]['obj_idx'] }}.data.value" placeholder="{{ $option['objs'][$option['obj_idx']]['label'] }}">
                 @endif
-            @endif
-        @endif
-
-        {{-- <input type="text" wire:model="query.keyword"> --}}
-
-        <button type="submit">検索</button>
-    </form>
-
-    @dump($query)
-    {{-- <a href="" wire:click.prevent="set('a', 'user')">ユーザー</a>
-    <a href="" wire:click.prevent="set('a', 'employee')">従業員</a>
-    <a href="" wire:click.prevent="set('a', 'customer')">顧客</a> --}}
-
-    @isset($fetched_models)
-        <ul>
-            @foreach ($fetched_models as $model)
-                <li>{{ $model }}</li>
+                {{-- @dump($csf_search_forms[$loop->parent->parent->index][$loop->parent->index][$loop->index]) --}}
             @endforeach
-        </ul>
-    @endisset
+        @endforeach
+
+        @if (! $loop->first)
+            <button wire:click="csf_DeleteSearchForm({{ $loop->index }})">この条件を取り消す</button>
+        @endif
+        <br>
+        @if ($loop->last && count($csf_search_forms) < $csf_max_search_form_cnt)
+            <button wire:click="csf_AddSearchForm">さらに条件を追加する</button>
+        @endif
+    @endforeach
+
+    <br>
+    <button wire:click="csf_Search">検索する</button>
+    <br>
+
+    @empty($csf_records)
+        <h2>検索してください</h2>
+    @else
+        @empty($csf_records[0])
+            <h2>データは存在しません</h2>
+        @else
+            @foreach ($csf_records as $record)
+                <br>
+                {{ $record }}
+            @endforeach
+        @endempty
+    @endempty
 </div>

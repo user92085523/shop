@@ -17,8 +17,6 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // dump(array_map(fn($position) => ['power' => $position->value], Position::cases()));
-
         EmployeePosition::factory(count(Name::cases()))->create();
 
         User::factory()->create([
@@ -26,6 +24,6 @@ class DatabaseSeeder extends Seeder
             'role' => Role::Admin
         ]);
 
-        User::factory(5)->hasEmployee()->create(['role' => Role::Employee]);
+        User::factory(20)->hasEmployee()->create(['role' => Role::Employee]);
     }
 }

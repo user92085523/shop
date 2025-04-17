@@ -65,105 +65,96 @@ class User extends Authenticatable
         return 'publicId';
     }
 
-    public static function getModelNameLowerCase()
-    {
-        return 'user';
-    }
-
-    public static function getSearchInfo()
+    public static function getSearchFormOption()
     {
         return [
-            'id' => [
-                'label' => 'ID',
-                'childs' => [
-                    [
-                        'label' => '部分一致',
-                        'operator' => 'like',
-                        'value' => null,
-                        'html_tag' => 'input',
-                        'child' => false,
+            'base' => [
+                'label' => 'ユーザー',
+                'class' => self::class,
+            ],
+            'columns' => [
+                [
+                    'label' => 'ID',
+                    'flag' => 0b1000,
+                    'data' => [
+                        'column' => 'id',
                     ],
-                    [
-                        'label' => '完全一致',
+                    'next' => [
+                        'input/common.input_text',
+                    ],
+                ],
+                [
+                    'label' => 'ロール',
+                    'flag' => 0b1110,
+                    'data' => [
+                        'column' => 'role',
+                        'method' => 'where',
                         'operator' => '=',
-                        'value' => null,
-                        'html_tag' => 'input',
-                        'child' => false,
+                    ],
+                    'next' => [
+                        'select/role',
+                    ],
+                ],
+                [
+                    'label' => '作成日',
+                    'flag' => 0b1000,
+                    'data' => [
+                        'column' => 'created_at',
+                    ],
+                    'next' => [
+                        'select/role',
+                    ],
+                ]
+            ],
+            'role' => [
+                [
+                    'label' => '従業員',
+                    'flag' => 0b0001,
+                    'data' => [
+                        'value' => Role::Employee->name,
+                    ],
+                ],
+                [
+                    'label' => '顧客',
+                    'flag' => 0b0001,
+                    'data' => [
+                        'value' => Role::Customer->name,
                     ],
                 ],
             ],
-            'loginId' => [
-                'label' => 'ログインID',
-                'childs' => [
+            'common' => [
+                'input_text' => [
                     [
-                        'label' => '部分一致',
-                        'operator' => 'like',
-                        'value' => '',
-                        'html_tag' => 'input',
-                        'child' => false,
+                        'label' => '検索キーワードを入力',
+                        'flag' => 0b0101,
+                        'data' => [
+                            'method' => 'where',
+                            'value' => '',
+                        ],
+                        'next' => [
+                            'select/common.operator.text',
+                        ],
                     ],
-                    [
-                        'label' => '完全一致',
-                        'operator' => '=',
-                        'value' => '',
-                        'html_tag' => 'input',
-                        'child' => false,
+                ],
+                'operator' => [
+                    'text' => [
+                        [
+                            'label' => '部分一致',
+                            'flag' => 0b0010,
+                            'data' => [
+                                'operator' => 'like',
+                            ],
+                        ],
+                        [
+                            'label' => '完全一致',
+                            'flag' => 0b0010,
+                            'data' => [
+                                'operator' => '=',
+                            ],
+                        ]
                     ],
                 ],
             ],
-            // 'created_at' => [
-            //     'label' => '作成日',
-            //     'child' => [
-            //         [
-            //             'label' => '以前',
-            //             'operator' => '<',
-            //             'html_tag' => 'input',
-            //         ],
-            //         [
-            //             'label' => '以降',
-            //             'operator' => '>',
-            //             'html_tag' => 'input',
-            //         ],
-            //     ],
-            // ],
-            // 'updated_at' => [
-            //     'label' => '更新日',
-            //     'child' => [
-            //         [
-            //             'label' => '何日以前',
-            //             'operator' => '>',
-            //             'html_tag' => 'input',
-            //         ],
-            //         [
-            //             'label' => '部分一致',
-            //             'operator' => 'like',
-            //             'html_tag' => 'input',
-            //         ],
-            //     ],
-            // ],
-            // 'deleted_at' => [
-            //     'label' => '削除',
-            //     'child' => [
-            //         [
-            //             'label' => '1',
-            //             'operator' => '<',
-            //             'html_tag' => 'input',
-            //         ],
-            //         [
-            //             'label' => '2',
-            //             'operator' => '>',
-            //             'html_tag' => 'input',
-            //         ],
-            //     ],
-            // ],
         ];
-    }
-
-    public static function buildQuery($column, $keyword)
-    {
-        if ($keyword === '') {
-            return User::all();
-        }
-        return User::where($column, $keyword)->get();
     }
 }

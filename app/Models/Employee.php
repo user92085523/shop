@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Enums\Models\EmployeePosition\Name;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -17,83 +16,35 @@ class Employee extends Model
         return $this->belongsTo(User::class);
     }
 
-    public static function getModelNameLowerCase()
-    {
-        return 'employee';
-    }
-
-    public static function getSearchInfo()
+    public static function getSearchFormOption()
     {
         return [
-            'id' => [
-                'label' => 'ID',
-                'childs' => [
-                    [
-                        'label' => '部分一致',
-                        'operator' => 'like',
-                        'value' => null,
-                        'html_tag' => 'input',
-                        'child' => false,
+            'base' => [
+                'label' => '従業員',
+                'class' => self::class,
+            ],
+            'columns' => [
+                [
+                    'label' => 'ID',
+                    'flag' => 0b1000,
+                    'data' => [
+                        'column' => 'id',
                     ],
-                    [
-                        'label' => '完全一致',
-                        'operator' => '=',
-                        'value' => null,
-                        'html_tag' => 'input',
-                        'child' => false,
+                    'next' => [
+                        // 'select/common.columns',
                     ],
                 ],
-            ],
-            'position_id' => [
-                'label' => '役職',
-                'childs' => [
-                    [
-                        'label' => Name::Manager->ja_JP(),
-                        'operator' => '=',
-                        'value' => Name::Manager->value,
-                        'html_tag' => false,
-                        'child' => false,
+                [
+                    'label' => '作成日',
+                    'flag' => 0b1000,
+                    'data' => [
+                        'column' => 'created_at',
                     ],
-                    [
-                        'label' => Name::Regular->ja_JP(),
-                        'operator' => '=',
-                        'value' => Name::Regular->value,
-                        'html_tag' => false,
-                        'child' => false,
-                    ],
-                    [
-                        'label' => Name::NonRegular->ja_JP(),
-                        'operator' => '=',
-                        'value' => Name::NonRegular->value,
-                        'html_tag' => false,
-                        'child' => false,
+                    'next' => [
+                        // 'select/role',
                     ],
                 ]
             ],
-            // 'name' => [
-            //     'label' => '名前',
-            //     'child' => [
-            //         [
-            //             'label' => '部分一致',
-            //             'operator' => 'like',
-            //             'html_tag' => 'input',
-            //         ],
-            //         [
-            //             'label' => '完全一致',
-            //             'operator' => '=',
-            //             'html_tag' => 'input',
-            //         ],
-            //     ],
-            // ],
-            // 'created_at' => [
-
-            // ],
-            // 'updated_at' => [
-
-            // ],
-            // 'deleted_at' => [
-
-            // ],
         ];
     }
 }

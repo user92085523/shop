@@ -17,15 +17,6 @@ enum Role: string
         };
     }
 
-    public function en_US_lower()
-    {
-        return match ($this) {
-            Role::Admin => 'admin',
-            Role::Employee => 'employee',
-            Role::Customer => 'customer',
-        };
-    }
-
     public function loginPagePath()
     {
         return match ($this) {
