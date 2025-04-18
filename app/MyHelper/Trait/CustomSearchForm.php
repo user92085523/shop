@@ -54,7 +54,10 @@ trait CustomSearchForm
         foreach ($search_form as $row) {
             foreach ($row as $option) {
                 $buff = $option['objs'][$option['obj_idx']];
-                $flag = $buff['flag'] ?? throw new Exception("{$option['html_tag']}/{$option['raw_path']} ['flag'] not defined.", 1);
+
+                if (! isset($buff['flag'])) continue;
+
+                $flag = $buff['flag'];
 
                 if ($flag === 0b0000) {
                     if (isset($buff['data']['column']) || isset($buff['data']['method']) || isset($buff['data']['operator']) || isset($buff['data']['value'])) {
@@ -64,20 +67,37 @@ trait CustomSearchForm
 
                 if (($flag & 0b1000) === 0b1000) {
                     $key = 'column';
-                    $query_ingredient[$key] = $buff['data'][$key] ?? throw new Exception("{$option['html_tag']}/{$option['raw_path']} ['data']['{$key}'] not defined.", 1);
+                    $query_ingredient[$key] = $buff['data'][$key] ?? '';
                 }
                 if (($flag & 0b0100) === 0b0100) {
                     $key = 'method';
-                    $query_ingredient[$key] = $buff['data'][$key] ?? throw new Exception("{$option['html_tag']}/{$option['raw_path']} ['data']['{$key}'] not defined.", 1);
+                    $query_ingredient[$key][] = $buff['data'][$key] ?? '';
                 }
                 if (($flag & 0b0010) === 0b0010) {
                     $key = 'operator';
-                    $query_ingredient[$key] = $buff['data'][$key] ?? throw new Exception("{$option['html_tag']}/{$option['raw_path']} ['data']['{$key}'] not defined.", 1);
+                    $query_ingredient[$key][] = $buff['data'][$key] ?? '';
                 }
                 if (($flag & 0b0001) === 0b0001) {
                     $key = 'value';
-                    $query_ingredient[$key] = $buff['data'][$key] ?? throw new Exception("{$option['html_tag']}/{$option['raw_path']} ['data']['{$key}'] not defined.", 1);
+                    $query_ingredient[$key][] = $buff['data'][$key] ?? '';
                 }
+            }
+        }
+
+        if (! isset($query_ingredient['column'])) {
+            throw new Exception("start_path['label']={$search_form[0][0]['objs'][$search_form[0][0]['obj_idx']]['label']} | ['column'] not defined.", 1);
+        }
+
+        foreach (['method', 'operator', 'value'] as $idx => $key) {
+            $query_ingredient[$key] ?? throw new Exception("start_path['label']={$search_form[0][0]['objs'][$search_form[0][0]['obj_idx']]['label']} | ['$key'] not defined.", 1);
+            
+            if ($idx === 0) {
+                $cnt = count($query_ingredient[$key]);
+                continue;
+            }
+
+            if ($cnt !== count($query_ingredient[$key])) {
+                throw new Exception("['method'] cnt = " . count($query_ingredient['method']) . " ['operator'] cnt = " . count($query_ingredient['operator']) . " ['value'] cnt = " . count($query_ingredient['value']) . " | elements cnt does not match.",1);   
             }
         }
 
@@ -174,11 +194,7 @@ trait CustomSearchForm
 
     private function csf_UpdateSearchForms_UnchangedModel(&$search_forms, &$prev_search_forms)
     {
-        $diff = $this->csf_FindDiff($search_forms, $prev_search_forms);
-
-        if ($diff === null) {
-            return;
-        }
+        if (! $diff = $this->csf_FindDiff($search_forms, $prev_search_forms)) return;
 
         $search_form = &$search_forms[$diff['form_num']];
         $x = $diff['x'];
@@ -186,11 +202,7 @@ trait CustomSearchForm
 
         $this->csf_UnsetSearchForm($search_form, $x, $y);
 
-        $directives = $search_form[$x][$y]['objs'][$search_form[$x][$y]['obj_idx']]['next'] ?? null;
-
-        if (! $directives) {
-            return;
-        }
+        if (! $directives = $search_form[$x][$y]['objs'][$search_form[$x][$y]['obj_idx']]['next'] ?? null) return;
 
         $this->csf_CreateTree($search_form, $directives, $x + 1);
     }
@@ -198,9 +210,12 @@ trait CustomSearchForm
     private function csf_CreateTree(&$search_form, $directives=['select/columns'], $x=0)
     {
         $default_idx = '0';
+        $cnt = 0;
 
-        while ($directives) {
-            for ($y = 0; $y < count($directives); $y++) {
+        while ($directives && $cnt < 10) {
+            $dir_cnt = count($directives);
+
+            for ($y = 0; $y < $dir_cnt; $y++) {
                 [$html_tag, $raw_path, $path_chain] = $this->csf_DirectiveToVars($directives[$y]);
 
                 $objs = $this->csf_GetTargetPathObjs($this->csf_target_model_info['path'], $path_chain);
@@ -213,8 +228,11 @@ trait CustomSearchForm
                 $search_form[$x][$y]['obj_idx'] = $default_idx;
                 $search_form[$x][$y]['objs'] = $objs;
             }
+
             $directives = $objs[$default_idx]['next'] ?? null;
+
             $x++;
+            $cnt++;
         }
     }
 
