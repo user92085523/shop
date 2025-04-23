@@ -2,13 +2,12 @@
 
 namespace Database\Factories;
 
-use App\Enums\Models\EmployeePosition\Name;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Employee>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Customer>
  */
-class EmployeeFactory extends Factory
+class CustomerFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -18,9 +17,8 @@ class EmployeeFactory extends Factory
     public function definition(): array
     {
         return [
-            'user_id' => fake()->unique()->numberBetween(1, 10000),
-            'employee_position_id' => fake()->numberBetween(1, count(Name::cases())),
             'name' => fake()->name(),
+            'phoneNumber' => fake()->phoneNumber(),
         ];
     }
 }
