@@ -6,8 +6,7 @@
     @endif
 
     @isset($cur_user)
-        @if ($cur_user->role === App\Enums\Models\User\Role::Admin)
-            <x-layouts.admin-menu />
-        @endif
+        @livewire('header-menu')
+        <br>
     @endisset
 </header>

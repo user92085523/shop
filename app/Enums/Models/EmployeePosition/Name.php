@@ -16,4 +16,22 @@ enum Name: string
             Name::NonRegular => '非正規',
         };
     }
+
+    public static function getCreationObjNameElements()
+    {
+        return [
+            [
+                'label' => Name::NonRegular->ja_JP(),
+                'value' => Name::NonRegular->value,
+            ],
+            [
+                'label' => Name::Regular->ja_JP(),
+                'value' => Name::Regular->value,
+            ],
+            [
+                'label' => Name::Manager->ja_JP(),
+                'value' => Name::Manager->value,
+            ],
+        ];
+    }
 }

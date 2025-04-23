@@ -52,4 +52,22 @@ enum Role: string
             Role::Admin,
         ];
     }
+
+    public static function getCreationObjRoleElements()
+    {
+        return [
+            [
+                'label' => Role::Employee->ja_JP(),
+                'value' => Role::Employee->value,
+            ],
+            [
+                'label' => Role::Customer->ja_JP(),
+                'value' => Role::Customer->value,
+            ],
+            [
+                'label' => Role::Admin->ja_JP(),
+                'value' => Role::Admin->value,
+            ],
+        ];
+    }
 }

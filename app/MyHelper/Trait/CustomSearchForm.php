@@ -210,6 +210,7 @@ trait CustomSearchForm
     private function csf_CreateTree(&$search_form, $directives=['select/columns'], $x=0)
     {
         $default_idx = '0';
+        //Model側定義で無限ループになってしまった場合のため
         $cnt = 0;
 
         while ($directives && $cnt < 10) {

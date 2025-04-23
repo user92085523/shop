@@ -16,19 +16,23 @@ class QueryBuilder
             $column = $input['column'];
 
             for ($i=0; $i < count($input['method']); $i++) { 
+                
                 $method = $input['method'][$i];
+                $operator = $input['operator'][$i];
+                $value = $input['value'][$i];
 
                 if ($method === '') continue;
 
                 if (in_array($method, ['onlyTrashed', 'withTrashed'])) {
                     $query = self::onlyMethod($query, $method);
-                } elseif (in_array($method, ['where','whereDate'])) {
-                    $operator = $input['operator'][$i];
-                    $value = $input['value'][$i];
+                    continue;
+                }
 
-                    if ($operator === '' || $value === '') continue;
+                if ($operator === '' || $value === '') continue;
 
+                if (in_array($method, ['where','whereDate'])) {
                     $query = self::unnamed($query, $column, $method, $operator, $value);
+                    continue;
                 }
             }
         }

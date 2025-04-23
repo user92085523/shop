@@ -3,7 +3,9 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Enums\Models\EmployeePosition\Name;
 use App\Enums\Models\User\Role;
+use DB;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -26,7 +28,7 @@ class User extends Authenticatable
         'loginId',
         // 'email',
         'password',
-        'name',
+        'role',
     ];
 
     /**
@@ -61,9 +63,57 @@ class User extends Authenticatable
         return $this->hasOne(Employee::class);
     }
 
+    public function customer(): HasOne
+    {
+        return $this->hasOne(Customer::class);
+    }
+
+    public function admin(): HasOne
+    {
+        return $this->hasOne(Admin::class);
+    }
+
     public static function nanoIdColumn()
     {
         return 'publicId';
+    }
+
+    public static function loginIdExist($loginId)
+    {
+        return User::where('loginId', '=', $loginId)->exists();
+    }
+
+    public static function getModelCreationFormObj()
+    {
+        $common = 'user_form.inputs.';
+        
+        return [
+            'loginId' => [
+                'label' => 'ログインID',
+                'html_tag' => 'input',
+                'model_mod' => '.live.debounce.700ms',
+                'var_name' => $common . 'loginId',
+            ],
+            'password' => [
+                'label' => 'パスワード',
+                'html_tag' => 'input',
+                'model_mod' => '.change',
+                'var_name' => $common . 'password',
+            ],
+            'confirmation_password' => [
+                'label' => '確認用パス',
+                'html_tag' => 'input',
+                'model_mod' => '.change',
+                'var_name' => $common . 'confirmation_password',
+            ],
+            'role' => [
+                'label' => 'ロール',
+                'html_tag' => 'select',
+                'model_mod' => '.change',
+                'var_name' => $common . 'role',
+                'elements' => Role::getCreationObjRoleElements(),
+            ],
+        ];
     }
 
     public static function getSearchFormOption()

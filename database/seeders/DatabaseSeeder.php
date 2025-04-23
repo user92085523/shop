@@ -19,11 +19,22 @@ class DatabaseSeeder extends Seeder
     {
         EmployeePosition::factory(count(Name::cases()))->create();
 
-        User::factory()->create([
+        User::factory()->hasAdmin()->create([
             'loginId' => 'admin',
             'role' => Role::Admin
         ]);
 
-        User::factory(20)->hasEmployee()->create(['role' => Role::Employee]);
+        $user_factory = User::factory();
+
+        for ($i = 0; $i < 100; $i++) { 
+            if (2 % random_int(1, 3)) {
+                $user_factory->hasEmployee()->create(['role' => Role::Employee]);
+            } else {
+                $user_factory->hasCustomer()->create(['role' => Role::Customer]);
+            }
+        }
+
+        User::find(5)->delete();
+        User::find(17)->delete();
     }
 }
